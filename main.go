@@ -39,7 +39,7 @@ func main() {
 	}
 
 	parser := flags.NewParser(&command, flags.IgnoreUnknown)
-	args, err := parser.Parse()
+	_, err := parser.Parse()
 	if err != nil {
 		log.Fatalf("error parsing args: %s", err)
 	}
@@ -56,16 +56,11 @@ func main() {
 			getFlyCliFromTargetIfNotInstalled(target.URL(), versionFolder)
 			flyPath = filepath.Join(versionFolder, fly)
 		}
-
-		targetArgs := []string{"-t", string(command.Target)}
-		args = append(targetArgs, args...)
 	}
-
-	args = append([]string{os.Args[0]}, args...)
 
 	cmd := exec.Cmd{
 		Path:   flyPath,
-		Args:   args,
+		Args:   os.Args,
 		Env:    os.Environ(),
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
@@ -77,7 +72,6 @@ func main() {
 		}
 		log.Fatal(err)
 	}
-
 }
 
 func getTargetApiVersion(name rc.TargetName) (rc.Target, string, bool, error) {
