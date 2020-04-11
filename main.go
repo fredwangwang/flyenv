@@ -63,8 +63,6 @@ func main() {
 
 	args = append([]string{os.Args[0]}, args...)
 
-	log.Printf("%s %s", flyPath, strings.Join(args[1:], " "))
-
 	cmd := exec.Cmd{
 		Path:   flyPath,
 		Args:   args,
