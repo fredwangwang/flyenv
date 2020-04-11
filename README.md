@@ -31,7 +31,9 @@ from the target and put it to the directory above.
 # Installation
 
 Download the binary from release.
-Recommended: override the fly installed with the flyenv binary to have a more transparent experience. 
+
+## Recommended: 
+override the fly installed with the flyenv binary to have a more transparent experience. 
 
 # Install from source
  
