@@ -21,11 +21,13 @@ import (
 )
 
 type Command struct {
-	Target rc.TargetName `short:"t" long:"target" description:"Concourse target name"`
+	Target  rc.TargetName `short:"t" long:"target" description:"Concourse target name"`
+	Version func()        `short:"v" long:"version" description:"Print the version of Fly and exit"`
 }
 
 var command Command
 var fly string
+var versionFlag bool
 
 func main() {
 	fly = flyCliName()
@@ -58,7 +60,8 @@ func main() {
 		}
 	}
 
-	cmd := exec.Cmd{
+	var stdoutBuffer strings.Builder
+	cmd := &exec.Cmd{
 		Path:   flyPath,
 		Args:   os.Args,
 		Env:    os.Environ(),
@@ -66,11 +69,20 @@ func main() {
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	}
+
+	if versionFlag {
+		cmd.Stdout = &stdoutBuffer
+	}
+
 	if err = cmd.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			os.Exit(exitError.ExitCode())
 		}
 		log.Fatal(err)
+	}
+
+	if versionFlag {
+		fmt.Printf("%s-flyenv", strings.TrimRight(stdoutBuffer.String(), "\n\r"))
 	}
 }
 
@@ -311,4 +323,8 @@ func unzip(srcFile io.Reader, name, folder string) {
 		os.Chmod(fpath, 0777)
 
 	}
+}
+
+func init() {
+	command.Version = func() { versionFlag = true }
 }
