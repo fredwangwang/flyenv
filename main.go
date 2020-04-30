@@ -5,10 +5,9 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/concourse/concourse/fly/rc"
-	"github.com/jessevdk/go-flags"
 	"io"
 	"io/ioutil"
 	"log"
@@ -18,6 +17,9 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/concourse/concourse/fly/rc"
+	"github.com/jessevdk/go-flags"
 )
 
 type Command struct {
@@ -138,6 +140,12 @@ func getFlyCliFromTarget(target string, targetFolder string) {
 		downloadUrl = downloadUrl + runtime.GOOS
 	default:
 		log.Fatal(runtime.GOOS, " is not supported")
+	}
+
+	_, skipSSL := os.LookupEnv("FLYENV_SKIP_SSL")
+	if skipSSL {
+		log.Println("FLYENV_SKIP_SSL variable set: skippling SSL validation")
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	log.Println("download cli from:", downloadUrl)
